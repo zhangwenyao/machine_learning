@@ -1,0 +1,10 @@
+*/__pycache__
+*.exe
+*.out
+*.json
+config/
+data/
+test/
+log/
+references/
+export/
