@@ -2,7 +2,7 @@
 
 import os
 import logging
-import numpy as np
+import numpy
 import gzip
 from common.iofile import loginit, read32, PATH_DATA
 
@@ -25,22 +25,22 @@ def extract_mnist(file, reshape=False, shape=None):
                 'Invalid magic number %d in MNIST image file: %s' % (x, file))
         tp = x >> 8
         if tp == 8:
-            dtype = np.uint8
+            dtype = numpy.uint8
             l = 1
         elif tp == 9:
-            dtype = np.int8
+            dtype = numpy.int8
             l = 1
         elif tp == 0xB:
-            dtype = np.int16
+            dtype = numpy.dtype(numpy.int16).newbyteorder('>')
             l = 2
         elif tp == 0xC:
-            dtype = np.int32
+            dtype = numpy.dtype(numpy.int32).newbyteorder('>')
             l = 4
         elif tp == 0xD:
-            dtype = np.float32
+            dtype = numpy.float32
             l = 4
         elif tp == 0xE:
-            dtype = np.float64
+            dtype = numpy.float64
             l = 8
         else:
             raise ValueError(
@@ -54,7 +54,7 @@ def extract_mnist(file, reshape=False, shape=None):
         for _ in dims:
             size *= _
         buf = bytestream.read(size * l)
-        data = np.frombuffer(buf, count=size, dtype=dtype)
+        data = numpy.frombuffer(buf, count=size, dtype=dtype)
         data = data.reshape(dims)
     if reshape:
         f = True
@@ -95,15 +95,15 @@ def read_mnist_data(train_ratio=1, test_ratio=1, normalize=False,
     tx = test_images[:test_num]
     ty = test_labels[:test_num]
     if normalize:
-        x = x.astype(np.float32)
-        tx = tx.astype(np.float32)
+        x = x.astype(numpy.float32)
+        tx = tx.astype(numpy.float32)
         for i in range(train_num):
-            x[i] = np.multiply(x[i], 1.0 / 255.0)
+            x[i] = numpy.multiply(x[i], 1.0 / 255.0)
             # ma = max(x[i])
             # mi = min(x[i)
             # x[i] = (x[i]  - mi) / (ma - mi)
         for i in range(test_num):
-            tx[i] = np.multiply(tx[i], 1.0 / 255.0)
+            tx[i] = numpy.multiply(tx[i], 1.0 / 255.0)
             # ma = max(x[i])
             # mi = min(x[i)
             # tx[i] = (tx[i]  - mi) / (ma - mi)
