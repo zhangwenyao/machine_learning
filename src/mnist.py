@@ -59,10 +59,6 @@ def mnist_origin():
     test_ratio = 1
     x, y, tx, ty = read_mnist_data(test_ratio, test_ratio, normalize=True,
                                    reshape=True)
-    for i in range(len(x)):
-        x[i] = filter(x[i], 0.1)
-    for i in range(len(tx)):
-        tx[i] = filter(tx[i], 0.1)
     train()
     name = sys._getframe().f_code.co_name
     # save_model(os.join(PATH_DATA, 'mnist_svm_LinearSVC_%s_%s' %
@@ -135,10 +131,9 @@ def mnist_count8():
     train_ratio = 1
     test_ratio = 1
     x, y, tx, ty = read_mnist_data(
-        test_ratio, test_ratio, reshape=True,  # normalize=True,
+        test_ratio, test_ratio, reshape=True, normalize=False,
         dir=os.path.join(PATH_DATA, 'MNIST_count8_data'))
     # print(x.shape, y.shape, tx.shape, ty.shape)
-    # exit(0)
     train()
     name = sys._getframe().f_code.co_name
     # save_model(os.join(PATH_DATA, 'mnist_svm_LinearSVC_%s_%s_%s' %
@@ -152,10 +147,9 @@ def mnist_count80():
     train_ratio = 1
     test_ratio = 1
     x, y, tx, ty = read_mnist_data(
-        test_ratio, test_ratio, reshape=True,  # normalize=True,
+        test_ratio, test_ratio, reshape=True, normalize=False,
         dir=os.path.join(PATH_DATA, 'MNIST_count80_data'))
     # print(x.shape, y.shape, tx.shape, ty.shape)
-    # exit(0)
     train()
     name = sys._getframe().f_code.co_name
     # save_model(os.join(PATH_DATA, 'mnist_svm_LinearSVC_%s_%s_%s' %
@@ -169,6 +163,7 @@ def main():
     # mnist_filter()
     # mnist_count1()
     # mnist_count2()
+    # mnist_count8()
     mnist_count80()
 
 

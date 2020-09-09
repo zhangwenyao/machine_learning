@@ -10,17 +10,86 @@
 
 using namespace std;
 
+void tran8(unsigned char* source, float* target, const unsigned images);
+void tran80(unsigned char* source, float* target, const unsigned images);
+
+using out_t = float;
+// auto& tran = tran8;
+// string dir = "../data/MNIST_data/", outdir = "../data/MNIST_count8_data/";
+auto& tran = tran80;
 string dir = "../data/MNIST_data/", outdir = "../data/MNIST_count80_data/";
 string filenames[2] = { "t10k-images-idx3-ubyte", "train-images-idx3-ubyte" };
 const unsigned rows = 28, cols = 28, len = 4 * (rows + cols);
 
-void tran8(unsigned char* source, float* target, const unsigned images);
-void tran80(unsigned char* source, float* target, const unsigned images);
+void tran_func8(const unsigned char si[rows][cols], float ti[len])
+{
+  // (1,0) up : 0 1 2 3 4 5 6 7
+  unsigned cnt[8] = { 0 }, sumr[4][rows] = { { 0 } },
+           sumc[4][cols] = { { 0 } }, sumnr[4][rows] = { { 0 } },
+           sumnc[4][cols] = { { 0 } },
+           *p[8] = { sumc[0], sumr[0], sumr[1], sumc[1], sumc[2], sumr[2],
+             sumr[3], sumc[3] },
+           *pn[8] = { sumnc[0], sumnr[0], sumnr[1], sumnc[1], sumnc[2],
+             sumnr[2], sumnr[3], sumnc[3] };
+  static constexpr unsigned dl[8]
+      = { cols, rows, rows, cols, cols, rows, rows, cols };
+  for (unsigned r = 0; r < rows; ++r) {
+    for (unsigned c = 0; c < cols; ++c) {
+      for (unsigned i = 0; i < rows; ++i) {
+        for (unsigned j = 0; j < cols; ++j) {
+          if ((i == r && j == c))
+            continue;
+          int dx = (int)i - r, dy = (int)j - c, l = max(abs(dx), abs(dy)), d;
+          if (dx == 0) {
+            d = dy > 0 ? 2 : 6;
+          } else if (dy == 0) {
+            d = dx > 0 ? 0 : 4;
+          } else if (dx == dy) {
+            d = dx > 0 ? 1 : 5;
+          } else if (dx == -dy) {
+            d = dx > 0 ? 7 : 3;
+          } else {
+            if (dx > 0) {
+              if (dy > 0) {
+                d = dx > dy ? 0 : 1;
+              } else {
+                d = dx > -dy ? 7 : 6;
+              }
+            } else {
+              if (dy > 0) {
+                d = -dx > dy ? 3 : 2;
+              } else {
+                d = -dx > -dy ? 4 : 5;
+              }
+            }
+          }
+          ++cnt[d];
+          if (0 < si[r][c]) {
+            ++pn[d][l];
+            if (si[i][j] >= si[r][c])
+              ++p[d][l];
+          }
+        }
+      }
+    }
+  }
+  float* t = ti;
+  for (unsigned d = 0; d < 8; ++d) {
+    for (unsigned l = 1; l < dl[d]; ++l) {
+      pn[d][0] += pn[d][l];
+      p[d][0] += p[d][l];
+    }
+  }
+  for (unsigned d = 0; d < 8; ++d) {
+    for (unsigned l = 0; l < dl[d]; ++l) {
+      t[l] = pn[d][l] > 0 ? (double)p[d][l] / pn[d][l] : 0;
+    }
+    // t[0] = cnt[d] > 0 ? (double)pn[d][0] / cnt[d] : 0;
+    t += dl[d];
+  }
+}
 
-auto& tran = tran80;
-using out_t = float;
-
-void tran_func8(unsigned char si[rows][cols], float ti[len])
+void tran_func8_back(unsigned char si[rows][cols], float ti[len])
 {
   // (1,0) up : 1 3 2 5 4 6 7 0
   unsigned cnt[len] = { 0 }, cntn[len] = { 0 }, *p[8], *pn[8];
@@ -132,7 +201,7 @@ void tran_func8(unsigned char si[rows][cols], float ti[len])
     }
   }
   for (unsigned d = 0; d < 8; ++d) {
-    for (unsigned l = 1, le = d / 2 % 2 == 0 ? cols : rows; l < le; ++l) {
+    for (unsigned l = 0, le = d / 2 % 2 == 0 ? cols : rows; l < le; ++l) {
       res[d][l] = pn[d][l] > 0 ? (double)p[d][l] / pn[d][l] : 0;
     }
   }
@@ -151,10 +220,14 @@ void tran_func80(const unsigned char si[rows][cols], float ti[len])
 {
   // (1,0) up : 0 1 2 3 4 5 6 7
   unsigned cnt[8] = { 0 }, sumr[4][rows] = { { 0 } },
-           sumc[4][cols] = { { 0 } },
+           sumc[4][cols] = { { 0 } }, sumnr[4][rows] = { { 0 } },
+           sumnc[4][cols] = { { 0 } },
            *p[8] = { sumc[0], sumr[0], sumr[1], sumc[1], sumc[2], sumr[2],
-             sumr[3], sumr[3] },
-           dl[8] = { cols, rows, rows, cols, cols, rows, rows, cols };
+             sumr[3], sumc[3] },
+           *pn[8] = { sumnc[0], sumnr[0], sumnr[1], sumnc[1], sumnc[2],
+             sumnr[2], sumnr[3], sumnc[3] };
+  static constexpr unsigned dl[8]
+      = { cols, rows, rows, cols, cols, rows, rows, cols };
   unsigned char mi = UCHAR_MAX, ma = 0;
   for (unsigned r = 0; r < rows; ++r) {
     for (unsigned c = 0; c < cols; ++c) {
@@ -192,7 +265,7 @@ void tran_func80(const unsigned char si[rows][cols], float ti[len])
           }
           ++cnt[d];
           if (0 < si[r][c]) {
-            ++p[d][0];
+            ++pn[d][l];
             if (si[i][j] >= si[r][c])
               p[d][l] += si[i][j];
           }
@@ -203,10 +276,16 @@ void tran_func80(const unsigned char si[rows][cols], float ti[len])
   double rmax = ma == mi ? 1.0 : 1.0 / (ma - mi);
   float* t = ti;
   for (unsigned d = 0; d < 8; ++d) {
-    for (unsigned j = 1; j < dl[d]; ++j) {
-      t[j] = rmax * ((double)p[d][j] / p[d][0] - mi);
+    for (unsigned l = 1; l < dl[d]; ++l) {
+      pn[d][0] += pn[d][l];
+      p[d][0] += p[d][l];
     }
-    t[0] = (double)p[d][0] / cnt[d];
+  }
+  for (unsigned d = 0; d < 8; ++d) {
+    for (unsigned l = 0; l < dl[d]; ++l) {
+      t[l] = pn[d][l] > 0 ? rmax * ((double)p[d][l] / pn[d][l] - mi) : 0;
+    }
+    // t[0] = cnt[d] > 0 ? (double)pn[d][0] / cnt[d] : 0;
     t += dl[d];
   }
 }
@@ -279,7 +358,7 @@ int handle(string& filename)
   os.write((char*)&res[0], outlen * sizeof(out_t));
   os.close();
   cout << "save to file: " << outdir + filename << endl;
-  cout << ntohl(ibuf[0]) << "\t" << (unsigned)buf[2] << " "
+  cout << ntohl(ibuf[0]) << "\t" << (unsigned)buf[2] << "\t"
        << (unsigned)buf[3] << "\t" << images << "\t" << len << endl;
   return 0;
 }
