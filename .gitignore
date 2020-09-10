@@ -3,6 +3,7 @@
 *.o
 *.out
 *.json
+archive/
 config/
 data/
 test/

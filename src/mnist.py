@@ -55,9 +55,9 @@ def verify():
 def mnist_origin():
     global model, x, y, tx, ty
     # 60000+10000, 28 * 28
-    train_ratio = 1
-    test_ratio = 1
-    x, y, tx, ty = read_mnist_data(test_ratio, test_ratio, normalize=True,
+    train_ratio = 0.2
+    test_ratio = 0.2
+    x, y, tx, ty = read_mnist_data(train_ratio, test_ratio, normalize=True,
                                    reshape=True)
     train()
     name = sys._getframe().f_code.co_name
@@ -72,7 +72,7 @@ def mnist_filter():
     # 60000+10000, 28 * 28
     train_ratio = 1
     test_ratio = 1
-    x, y, tx, ty = read_mnist_data(test_ratio, test_ratio, normalize=True,
+    x, y, tx, ty = read_mnist_data(train_ratio, test_ratio, normalize=True,
                                    reshape=True)
     for i in range(len(x)):
         x[i] = filter(x[i], 0.1)
@@ -88,9 +88,9 @@ def mnist_filter():
 
 def mnist_count1():
     global model, x, y, tx, ty
-    train_ratio = 0.01
-    test_ratio = 0.01
-    x, y, tx, ty = read_mnist_data(test_ratio, test_ratio, normalize=False,
+    train_ratio = 0.1
+    test_ratio = 0.1
+    x, y, tx, ty = read_mnist_data(train_ratio, test_ratio, normalize=False,
                                    reshape=True)
     m = 28
     n = 28
@@ -108,9 +108,9 @@ def mnist_count1():
 
 def mnist_count2():
     global model, x, y, tx, ty
-    train_ratio = 0.01
-    test_ratio = 0.01
-    x, y, tx, ty = read_mnist_data(test_ratio, test_ratio, normalize=False,
+    train_ratio = 0.1
+    test_ratio = 0.1
+    x, y, tx, ty = read_mnist_data(train_ratio, test_ratio, normalize=False,
                                    reshape=True)
     m = 28
     n = 28
@@ -126,29 +126,25 @@ def mnist_count2():
     verify()
 
 
-def mnist_count8():
+def mnist_count8_do(name, train_ratio=1, test_ratio=1):
     global model, x, y, tx, ty
-    train_ratio = 1
-    test_ratio = 1
     x, y, tx, ty = read_mnist_data(
-        test_ratio, test_ratio, reshape=True, normalize=False,
-        dir=os.path.join(PATH_DATA, 'MNIST_count8_data'))
-    # print(x.shape, y.shape, tx.shape, ty.shape)
+        train_ratio, test_ratio, reshape=True, normalize=False,
+        dir=os.path.join(PATH_DATA, name))
     train()
-    name = sys._getframe().f_code.co_name
     # save_model(os.join(PATH_DATA, 'mnist_svm_LinearSVC_%s_%s_%s' %
     #                    (name, train_ratio, test_ratio)))
     info('%s, train_ratio=%s, test_ratio=%s' % (name, train_ratio, test_ratio))
     verify()
 
 
-def mnist_count80():
+def mnist_count8_test():
     global model, x, y, tx, ty
     train_ratio = 1
     test_ratio = 1
     x, y, tx, ty = read_mnist_data(
-        test_ratio, test_ratio, reshape=True, normalize=False,
-        dir=os.path.join(PATH_DATA, 'MNIST_count80_data'))
+        train_ratio, test_ratio, reshape=True, normalize=False,
+        dir=os.path.join(PATH_DATA, 'MNIST_count80_data_test'))
     # print(x.shape, y.shape, tx.shape, ty.shape)
     train()
     name = sys._getframe().f_code.co_name
@@ -163,8 +159,17 @@ def main():
     # mnist_filter()
     # mnist_count1()
     # mnist_count2()
-    # mnist_count8()
-    mnist_count80()
+    # mnist_count8_test()
+    # mnist_count8_do('MNIST_count8_data')
+    # mnist_count8_do('MNIST_count80_data')
+    # mnist_count8_do('MNIST_count80n_data')
+    # mnist_count8_do('MNIST_count801_data')
+    # mnist_count8_do('MNIST_count801n_data')
+    # mnist_count8_do('MNIST_count82_data')
+    # mnist_count8_do('MNIST_count82n_data')
+    # mnist_count8_do('MNIST_count80n2_data')
+    # mnist_count8_do('MNIST_count80n3_data')
+    mnist_count8_do('MNIST_count80n4_data')
 
 
 if __name__ == '__main__':
