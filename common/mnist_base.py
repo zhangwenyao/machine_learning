@@ -6,8 +6,8 @@ import numpy
 import gzip
 from common.iofile import loginit, read32, PATH_DATA
 
+CURNAME = os.path.abspath(__file__)
 PATH_CUR = os.path.dirname(os.path.abspath(__file__))
-CURNAME = os.path.splitext(os.path.split(PATH_CUR)[0])[0]
 logger = logging.getLogger(CURNAME)
 debug = logger.debug
 info = logger.info
@@ -78,7 +78,7 @@ def extract_mnist(file, reshape=False, shape=None):
     return data
 
 
-def read_mnist_data(train_ratio=1, test_ratio=1, normalize=False,
+def read_mnist_data(train_ratio=1, test_ratio=1, normalize=True,
                     reshape=False, dir=os.path.join(PATH_DATA, 'MNIST_data')):
     TRAIN_IMAGES = os.path.join(dir, 'train-images-idx3-ubyte.gz')
     TRAIN_LABELS = os.path.join(dir, 'train-labels-idx1-ubyte.gz')
@@ -98,16 +98,37 @@ def read_mnist_data(train_ratio=1, test_ratio=1, normalize=False,
         x = x.astype(numpy.float32)
         tx = tx.astype(numpy.float32)
         for i in range(train_num):
-            x[i] = numpy.multiply(x[i], 1.0 / 255.0)
-            # ma = max(x[i])
-            # mi = min(x[i)
-            # x[i] = (x[i]  - mi) / (ma - mi)
+            # x[i] = numpy.multiply(x[i], 1.0 / 255.0)
+            ma = max(x[i])
+            # mi = min(x[i])
+            # x[i] = (x[i] - mi) / (ma - mi)
+            x[i] = numpy.multiply(x[i], 1.0 / ma)
         for i in range(test_num):
-            tx[i] = numpy.multiply(tx[i], 1.0 / 255.0)
-            # ma = max(x[i])
-            # mi = min(x[i)
-            # tx[i] = (tx[i]  - mi) / (ma - mi)
+            # tx[i] = numpy.multiply(tx[i], 1.0 / 255.0)
+            ma = max(tx[i])
+            # mi = min(tx[i])
+            # tx[i] = (tx[i] - mi) / (ma - mi)
+            tx[i] = numpy.multiply(tx[i], 1.0 / ma)
     return x, y, tx, ty
+
+
+def read_digits_data(normalize=True, reshape=False,
+                     dir=os.path.join(PATH_DATA, 'MNIST_data'), dtype=None):
+    IMAGES = os.path.join(dir, 'data.dat.gz')
+    LABELS = os.path.join(dir, 'target.dat.gz')
+    x = extract_mnist(IMAGES, reshape=reshape, shape=(-1, -1))
+    y = extract_mnist(LABELS, reshape=reshape, shape=(-1,))
+    if dtype is not None:
+        x = x.astype(dtype)
+    if normalize:
+        x = x.astype(numpy.float32)
+        for i in range(len(x)):
+            # x[i] = numpy.multiply(x[i], 1.0 / 255.0)
+            ma = max(x[i])
+            # mi = min(x[i])
+            # x[i] = (x[i] - mi) / (ma - mi)
+            x[i] = numpy.multiply(x[i], 1.0 / ma)
+    return x, y
 
 
 def main():

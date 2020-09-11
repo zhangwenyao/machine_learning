@@ -5,8 +5,8 @@ import logging
 import numpy
 from common.iofile import loginit
 
+CURNAME = os.path.abspath(__file__)
 PATH_CUR = os.path.dirname(os.path.abspath(__file__))
-CURNAME = os.path.splitext(os.path.split(PATH_CUR)[0])[0]
 logger = logging.getLogger(CURNAME)
 debug = logger.debug
 info = logger.info

@@ -5,8 +5,8 @@ import logging
 import numpy as np
 from common.iofile import loginit
 
+CURNAME = os.path.abspath(__file__)
 PATH_CUR = os.path.dirname(os.path.abspath(__file__))
-CURNAME = os.path.splitext(os.path.split(PATH_CUR)[0])[0]
 logger = logging.getLogger(CURNAME)
 debug = logger.debug
 info = logger.info
@@ -110,22 +110,26 @@ def count1(data, m, n, _cc=None):
     return cnt / cntn
 
 
-def count2(data, m, n, _cc=None):
+def count2(data, m: int, n: int, _cc=None, size=None):
     if _cc is not None:
         if _cc[0] % 100 == 0:
             print(_cc[0])
         _cc[0] += 1
-    size = int(max(m, n) / 2)
-    valmax = data[0]
-    valmin = 0
-    for i in range(m * n):
-        if data[i] > valmax:
-            valmax = data[i]
-        if valmin == 0 or data[i] < valmin:
-            valmin = data[i]
+    if size is None:
+        size = int(max(m, n) / 2)
+        # size = min(m, n) - 1
     # valmax = max(data)
     # valmin = min(data)
-    valmid = (valmax + valmin) / 2
+    # valmax = 0
+    # valmin = 0
+    # for i in range(m * n):
+    #     if data[i] == 0:
+    #         continue
+    #     if valmax == 0 or data[i] > valmax:
+    #         valmax = data[i]
+    #     if valmin == 0 or data[i] < valmin:
+    #         valmin = data[i]
+    # valmid = (valmax + valmin) / 2
     cnt = np.zeros([8 * size + 1], dtype=float)
     cntn = np.ones([8 * size + 1], dtype=int)
     dirs = [[1, 0, 0, 1],
@@ -146,6 +150,8 @@ def count2(data, m, n, _cc=None):
         for j in range(n):
             dij = data[i * n + j]
             # if dij < valmid:
+            #     continue
+            # if dij == 0:
             #     continue
             cnt[0] += dij
             cntn[0] += 1

@@ -8,6 +8,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+import sys
+
+sys.path.append("..")
+from common.iofile import loginit, PATH_R, PATH_DATA, PATH_LOG
 
 xy_name = 'mnist'
 model_name = 'mnist_svm_LinearSVC'
@@ -18,8 +22,8 @@ test_ratio = 1
 num_classes = 10
 input_shape = (28, 28, 1)
 
+CURNAME = os.path.abspath(__file__)
 PATH_CUR = os.path.dirname(os.path.abspath(__file__))
-PATH_R = os.path.abspath(os.path.join(PATH_CUR, os.path.pardir))
 PATH_DATA = os.path.join(PATH_R, 'data')
 PATH_SRC = os.path.join(PATH_R, 'src')
 PATH_LOG = os.path.join(PATH_R, 'log')

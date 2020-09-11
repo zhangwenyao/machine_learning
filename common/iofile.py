@@ -7,11 +7,11 @@ import numpy
 import gzip
 import _pickle as pickle
 
+CURNAME = os.path.abspath(__file__)
 PATH_CUR = os.path.dirname(os.path.abspath(__file__))
 PATH_R = os.path.abspath(os.path.join(PATH_CUR, os.path.pardir))
 PATH_DATA = os.path.join(PATH_R, 'data')
 PATH_LOG = os.path.join(PATH_R, 'log')
-CURNAME = os.path.splitext(os.path.split(PATH_CUR)[0])[0]
 
 logger = logging.getLogger(CURNAME)
 debug = logger.debug
